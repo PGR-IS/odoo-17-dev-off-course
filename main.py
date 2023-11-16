@@ -1,3 +1,3 @@
 from os import system as sys
 
-sys("python odoo\odoo-bin -c odoo.conf --dev xml")
+sys("python odoo\odoo-bin -c odoo.conf --update estate --dev xml")

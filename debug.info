@@ -1,0 +1,32 @@
+++++++++++++++++++++++++++++++++
+Place a trigger (breakpoint):
+  import ipdb; ipdb.set_trace()
+++++++++++++++++++++++++++++++++
+Here is a list of commands:
+
+h(elp)[command]
+Print the list of available commands if not argument is supplied. With a command as an argument, print the help about that command.
+
+ppexpression
+The value of the expression is pretty-printed using the pprint module.
+
+w(here)
+Print a stack trace with the most recent frame at the bottom.
+
+d(own)
+Move the current frame one level down in the stack trace (to a newer frame).
+
+u(p)
+Move the current frame one level up in the stack trace (to an older frame).
+
+n(ext)
+Continue the execution until the next line in the current function is reached or it returns.
+
+c(ontinue)
+Continue the execution and only stop when a breakpoint is encountered.
+
+s(tep)
+Execute the current line. Stop at the first possible occasion (either in a function that is called or on the next line in the current function).
+
+q(uit)
+Quit the debugger. The program being executed is aborted.
