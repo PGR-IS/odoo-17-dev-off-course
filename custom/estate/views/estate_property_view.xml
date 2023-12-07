@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+ <!-- Create the estate property view action -->
+  <record id="estate_property_view_action" model="ir.actions.act_window">
+    <field name="name">Estate Property</field>
+    <field name="res_model">estate.property</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+  <!-- Create the estate property type view action -->
+  <record id="estate_property_type_view_action" model="ir.actions.act_window">
+    <field name="name">Estate Property Type</field>
+    <field name="res_model">estate.property.type</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+  <!-- Create the estate property tags view action -->
+  <record id="estate_property_tags_view_action" model="ir.actions.act_window">
+    <field name="name">Estate Property Tags</field>
+    <field name="res_model">estate.property.tag</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+  <!-- Estate Property tree view -->
+  <record id="estate_property_view_tree" model="ir.ui.view">
+    <field name="name">estate.property.tree.view</field>
+    <field name="model">estate.property</field>
+    <field name="arch" type="xml">
+      <tree string="Channel">
+        <field name="name"/>
+        <field name="postcode"/>
+        <field name="bedrooms"/>
+        <field name="living_area"/>
+        <field name="expected_price"/>
+        <field name="selling_price"/>
+        <field name="date_availability"/>
+      </tree>
+    </field>
+  </record>
+  <!-- Estate Property form view -->
+  <record id="model_name_view_form" model="ir.ui.view">
+    <field name="name">estate.property.view.form</field>
+    <field name="model">estate.property</field>
+    <field name="arch" type="xml">
+      <form string="Channel">
+        <header>
+          <button  
+            name="estate_property_sold_button_action"
+            type="object"
+            string="Sold"
+            invisible="state == 'sold' or state == 'canceled'"
+          />
+          <button  
+            name="estate_property_cancel_button_action"
+            type="object"
+            string="Cancel"
+            invisible="state == 'sold' or state == 'canceled'"
+          />
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <div class="oe_edit_only">
+              <label for="name"/>
+            </div>
+            <h1 class="mb32">
+                <field name="name" class="mb16"/>
+            </h1>
+          </div>
+          <!-- Display TAGS -->
+          <group>
+            <field name="tag_ids" widget="many2many_tags"/>
+          </group>
+          <!-- Display estate property form header -->
+          <group name="estate_property_form_header" string="">
+            <group>
+              <field name="estate_property_type"/>
+              <field name="postcode"/>
+              <field name="date_availability"/>
+            </group>         
+            <group>
+              <field name="expected_price"/>
+              <field name="best_price" />
+              <field name="selling_price"/>
+            </group>
+          </group>
+          <!-- Display estate property form notebooks -->
+          <notebook>
+            <page name="description" string="Description">
+              <group>
+                <group>
+                  <field name="description"/>
+                  <field name="bedrooms"/>
+                  <field name="living_area"/>
+                  <field name="facades"/>
+                  <field name="garage"/>
+                  <field name="garden"/>
+                  <field name="garden_area"/>
+                  <field name="garden_orientation"/>
+                  <field name="state" />
+                  <field name="total_area" />
+                </group>
+              </group>
+            </page>
+            <page name="other infos" string="Other Infos">
+              <group>
+                <group>
+                  <field name="buyer" />
+                  <field name="salesperson" />
+                </group>
+              </group>
+            </page>
+            <page name="offers" string="Offers">
+              <field name="offer_ids" readonly="(state != 'new') and (state != 'offer received')"/>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+</odoo>

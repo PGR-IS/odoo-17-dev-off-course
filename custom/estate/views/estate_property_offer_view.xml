@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="estate_property_offer_view_tree" model="ir.ui.view">
+    <field name="name">estate.property.offer.view.tree</field>
+    <field name="model">estate.property.offer</field>
+    <field 
+      name="arch" 
+      type="xml"
+    >
+      <tree 
+        string="channel"
+      >
+        <field name="price" />
+        <field name="partner_id" />
+        <field name="property_state" column_invisible="True"/>
+        <button 
+          name="accept_offer_button_action"
+          type="object"
+          string="Accept"
+          icon="fa-check"
+          invisible="status == 'accepted' or status == 'refused' or property_state != 'new'"
+        />
+        <button 
+          name="refuse_offer_button_action"
+          type="object"
+          string="Refuse"
+          icon="fa-times"
+          invisible="status == 'accepted' or status == 'refused' or property_state != 'new'"
+        />
+        <field name="status" />
+      </tree>
+    </field>
+  </record>
+
+  <record id="estate_property_offer_view_form" model="ir.ui.view">
+    <field name="name">estate.property.offer.view.form</field>
+    <field name="model">estate.property.offer</field>
+    <field name="arch" type="xml">
+      <form string="">
+        <sheet>
+          <group>
+            <field name="price" />
+            <field name="partner_id" />
+            <field name="status" />
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+</odoo>
