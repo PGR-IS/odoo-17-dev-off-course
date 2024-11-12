@@ -1,5 +1,6 @@
 from odoo import api, models, fields, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools.float_utils import float_is_zero, float_compare
 
 # Create EstateProperty class
 class EstateProperty(models.Model):
@@ -7,6 +8,7 @@ class EstateProperty(models.Model):
   _description = """
     This module will contain the main informations concerning the property
   """
+  _order = "sequence, id desc"
 
   name = fields.Char(string='Name', required=True, default="Unknown")
   description = fields.Text(string='Description')
@@ -25,6 +27,9 @@ class EstateProperty(models.Model):
     selection=[('north', 'North'), ('south', 'South'), ('east', 'East'), ('west', 'West')]  
   )
   estate_property_type = fields.Many2one("estate.property.type", string="Type")
+  sequence = fields.Integer("Sequence", default=1, help="This is used to sort the property display by the type the most sold for example")
+
+
 
   # References and Advanced fields
   buyer = fields.Many2one("res.partner", string="Buyer", copy=False)
@@ -35,8 +40,6 @@ class EstateProperty(models.Model):
   # Computed fields
   total_area = fields.Integer(string="Total Area (sqm)", compute="_compute_total_area")
   best_price = fields.Float(string="Best Offer", compute="_compute_best_price")
-  validity = fields.Integer(string="Validaty (In days)", default=7)
-  date_deadline = fields.Date(string="Deadline", compute="_compute_date_deadline", inverse="_inverse_date_deadline")
 
   
   # Reserved fields
@@ -47,7 +50,10 @@ class EstateProperty(models.Model):
     ('offer accepted', 'Offer Accepted'),
     ('sold', 'Sold'),
     ('canceled', 'Canceled')
-  ])
+  ],
+    default="new",
+    required=True
+  )
 
 
   # Computed Methods
@@ -68,15 +74,6 @@ class EstateProperty(models.Model):
       except ValueError:
         print("There are no offers")
         record.best_price = 0
-  # - Compute the validity date
-  @api.depends("validity","create_date")
-  def _compute_date_deadline(self):
-    for record in self:
-      record.date_deadline = fields.Date.add(value=record.create_date, days=record.validity)
-  # - The inverse function for the deadline and validity
-  def _inverse_date_deadline(self):
-    for record in self:
-      record.validity = fields.Date
 
   # Onchange methods
   @api.onchange("garden")
@@ -88,10 +85,12 @@ class EstateProperty(models.Model):
   # - Sold button action
   def estate_property_sold_button_action(self):
     for record in self:
-      if record.state != "canceled":
+      if record.state == "offer accepted":
         record.state = "sold"
-      else:
+      elif record.state == "canceled":
         raise UserError(_("A CANCELED property cannot be SOLD!"))
+      else:
+        raise UserError(_("You need to accept an offer before switching to a SOLD state"))
 
     return True
   # - Canceled button action      
@@ -102,6 +101,31 @@ class EstateProperty(models.Model):
       else:
         raise UserError(_("A SOLD property cannot be CANCELED!"))
     return True
+
+
+  # SQL constraints
+  _sql_constraints = [
+    ('check_expected_price', 'CHECK(expected_price>0)', 'The Expected Price must be strictly positive'),
+    ('check_selling_price', 'CHECK(selling_price>=0)', 'The Selling Price must be positive')
+  ]
+
+  # Python constraints
+  @api.constrains("selling_price", "expected_price")
+  def _check_selling_expected_price(self):
+    for record in self:
+      if not float_is_zero(record.selling_price, precision_digits=2):
+        if float_compare(record.selling_price, (90/100) * record.expected_price, precision_digits=2) < 0:
+          raise ValidationError(_("The Selling Price can not be lower than 90 percent of the Expected Price"))
+  
+  # Override CRUD operations
+  # - Unlink method(by the mean of ondelete decorator)
+  @api.ondelete(at_uninstall=False)
+  def _unlink_if_state_is_new_or_canceled(self):
+    for record in self:
+      if record.state != "new" and record.user != 'canceled':
+        raise UserError(_("You can't delete a property that is in the state '{}'".format(record.state)))
+  
+
 
 
 

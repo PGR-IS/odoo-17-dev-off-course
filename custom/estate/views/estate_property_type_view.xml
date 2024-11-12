@@ -17,9 +17,30 @@
     <field name="arch" type="xml">
       <form string="">
         <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button 
+              type="action"
+              name="%(estate.estate_property_offers_view_action)d"
+              class="oe_stat_button"
+              icon="fa-bars"
+            >
+              <field name="offer_count"/> Offers
+            </button>
+          </div> 
           <group>
-            <field name="name" />
+            <field name="name"/>
           </group>
+          <notebook>
+            <page name="properties" string="Properties">
+              <field name="property_ids">
+                <tree>
+                  <field name="name" />
+                  <field name="expected_price" />
+                  <field name="state" />
+                </tree>
+             </field>
+            </page>
+          </notebook>
         </sheet>
       </form>
     </field>

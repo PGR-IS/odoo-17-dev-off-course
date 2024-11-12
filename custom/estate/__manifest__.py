@@ -11,5 +11,6 @@
       'views/estate_property_view.xml',
       'views/menus/estate_menus.xml',
       'views/search/estate_search.xml',
+      'views/inherited/res_users_views.xml',
     ]
 }

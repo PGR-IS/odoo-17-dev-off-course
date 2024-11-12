@@ -5,6 +5,7 @@
     <field name="name">Estate Property</field>
     <field name="res_model">estate.property</field>
     <field name="view_mode">tree,form</field>
+    <field name="context">{'search_default_available': True, 'search_default_current': True}</field>
   </record>
   <!-- Create the estate property type view action -->
   <record id="estate_property_type_view_action" model="ir.actions.act_window">
@@ -18,19 +19,38 @@
     <field name="res_model">estate.property.tag</field>
     <field name="view_mode">tree,form</field>
   </record>
+  <!-- Create the estate property offer view action -->
+  <record id="estate_property_offers_view_action" model="ir.actions.act_window">
+    <field name="name">Estate Property Offer</field>
+    <field name="res_model">estate.property.offer</field>
+    <field name="domain">[('estate_property_type', '=', active_id)]</field>
+    <field name="view_mode">tree,form</field>
+  </record>
   <!-- Estate Property tree view -->
   <record id="estate_property_view_tree" model="ir.ui.view">
     <field name="name">estate.property.tree.view</field>
     <field name="model">estate.property</field>
-    <field name="arch" type="xml">
-      <tree string="Channel">
+    <field 
+      name="arch" 
+      type="xml" 
+    >
+      <tree 
+        string="Channel"
+        decoration-success="state=='offer received' or state=='offer accepted'"
+        decoration-bf="state=='offer accepted'"
+        decoration-muted="state=='sold'"
+      >
+        <field name="sequence" widget="handle" />
         <field name="name"/>
+        <field name="estate_property_type" />
         <field name="postcode"/>
+        <field name="tag_ids" widget="many2many_tags"/>
         <field name="bedrooms"/>
         <field name="living_area"/>
         <field name="expected_price"/>
         <field name="selling_price"/>
-        <field name="date_availability"/>
+        <field name="date_availability" optional="True"/>
+        <field name="state" optional="hide"/>
       </tree>
     </field>
   </record>
@@ -40,6 +60,7 @@
     <field name="model">estate.property</field>
     <field name="arch" type="xml">
       <form string="Channel">
+      <!-- Display the main buttons and the state of the property -->
         <header>
           <button  
             name="estate_property_sold_button_action"
@@ -53,6 +74,7 @@
             string="Cancel"
             invisible="state == 'sold' or state == 'canceled'"
           />
+          <field name="state" widget="statusbar" statusbar_visible="new,offer received,offer accepted,sold" />
         </header>
         <sheet>
           <div class="oe_title">
@@ -65,12 +87,20 @@
           </div>
           <!-- Display TAGS -->
           <group>
-            <field name="tag_ids" widget="many2many_tags"/>
+            <group>
+              <field 
+                name="tag_ids" 
+                widget="many2many_tags"
+                options="{'color_field':'color'}"  
+              />
+            </group>
+            <group>
+            </group>
           </group>
           <!-- Display estate property form header -->
           <group name="estate_property_form_header" string="">
             <group>
-              <field name="estate_property_type"/>
+              <field name="estate_property_type" options="{'no_create': True}"/>
               <field name="postcode"/>
               <field name="date_availability"/>
             </group>         
@@ -91,9 +121,8 @@
                   <field name="facades"/>
                   <field name="garage"/>
                   <field name="garden"/>
-                  <field name="garden_area"/>
-                  <field name="garden_orientation"/>
-                  <field name="state" />
+                  <field name="garden_area" invisible="not garden"/>
+                  <field name="garden_orientation" invisible="not garden"/>
                   <field name="total_area" />
                 </group>
               </group>
